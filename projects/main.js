@@ -13,6 +13,7 @@ let direction = new THREE.Vector3();
 let audioVolume = 0.5; // Default volume
 let showFPS = false; // Default FPS display setting
 let stats; // FPS Stats object
+let mouseDown = false;
 
 function init() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -38,6 +39,7 @@ function init() {
     courageScene(scene);
 
     setupMovementControls();
+    setupMouseControls();
 
     animate();
 }
@@ -46,8 +48,8 @@ function init() {
 function setupMovementControls() {
     document.addEventListener('keydown', (event) => {
         switch (event.code) {
-            case 'KeyW': moveForward = true; break;
-            case 'KeyS': moveBackward = true; break;
+            case 'KeyS': moveForward = true; break;
+            case 'KeyW': moveBackward = true; break;
             case 'KeyA': moveLeft = true; break;
             case 'KeyD': moveRight = true; break;
         }
@@ -55,10 +57,36 @@ function setupMovementControls() {
 
     document.addEventListener('keyup', (event) => {
         switch (event.code) {
-            case 'KeyW': moveForward = false; break;
-            case 'KeyS': moveBackward = false; break;
+            case 'KeyS': moveForward = false; break;
+            case 'KeyW': moveBackward = false; break;
             case 'KeyA': moveLeft = false; break;
             case 'KeyD': moveRight = false; break;
+        }
+    });
+}
+let yaw = 0; // Horizontal rotation
+let pitch = 0; // Vertical rotation
+
+function setupMouseControls() {
+    document.addEventListener('mousedown', () => {
+        mouseDown = true;
+    });
+
+    document.addEventListener('mouseup', () => {
+        mouseDown = false;
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (mouseDown) {
+            const sensitivity = 0.002;
+            yaw -= event.movementX * sensitivity; // Invert to rotate in correct direction
+            pitch -= event.movementY * sensitivity;
+
+            // Constrain pitch to avoid flipping
+            pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
+
+            // Update camera rotation
+            camera.rotation.set(pitch, yaw, 0);
         }
     });
 }
@@ -66,46 +94,25 @@ function setupMovementControls() {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Handle movement
     const delta = 0.1; // Speed multiplier
+
+    // Calculate movement direction relative to camera orientation
     direction.z = Number(moveForward) - Number(moveBackward);
     direction.x = Number(moveRight) - Number(moveLeft);
-    direction.normalize(); // Normalize to prevent faster diagonal movement
+    direction.normalize();
 
-    velocity.z = direction.z * delta;
-    velocity.x = direction.x * delta;
+    const moveDirection = new THREE.Vector3(direction.x, 0, direction.z);
+    moveDirection.applyQuaternion(camera.quaternion); // Rotate direction by camera's quaternion
 
-    camera.position.x += velocity.x;
-    camera.position.z += velocity.z;
+    velocity.z = moveDirection.z * delta * 5; // Adjust speed as needed
+    velocity.x = moveDirection.x * delta * 5;
+
+    camera.position.add(velocity); // Update camera position
 
     renderer.render(scene, camera);
 }
 
-function setupSidebarButtons() {
-    const buttons = document.querySelectorAll('.scene-button');
 
-    buttons.forEach((button) => {
-        button.addEventListener('click', (event) => {
-            const sceneName = event.target.getAttribute('data-scene');
-            switch (sceneName) {
-                case 'courage':
-                    switchScene(courageScene);
-                    break;
-                case 'bikini':
-                    switchScene(bikiniScene);
-                    break;
-                case 'regular':
-                    switchScene(regularScene);
-                    break;
-                case 'gumball':
-                    switchScene(gumballScene);
-                    break;
-                default:
-                    console.error('Scene not found:', sceneName);
-            }
-        });
-    });
-}
 
 function setupSidebarToggle() {
     const sidebar = document.getElementById('sidebar');

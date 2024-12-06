@@ -29,13 +29,14 @@ export function bikiniScene(scene) {
     createPaths(scene);
 }
 
+
 // Helper Function: Pineapple House
 function createPineappleHouse(scene) {
     // Pineapple Main Body
-    const pineappleGeometry = new THREE.CylinderGeometry(2, 2, 5, 32);
-    const pineappleMaterial = new THREE.MeshStandardMaterial({ color: 0xffa500 }); // Orange
+    const pineappleGeometry = new THREE.CylinderGeometry(2, 2, 5, 32); // Rounded cylinder for the body
+    const pineappleMaterial = new THREE.MeshStandardMaterial({ color: 0xffa500 }); // Orange for the pineapple
     const pineapple = new THREE.Mesh(pineappleGeometry, pineappleMaterial);
-    pineapple.position.set(0, 2.5, -10);
+    pineapple.position.set(0, 2.5, -10); // Pineapple's base height
     scene.add(pineapple);
 
     // Round Top for Pineapple
@@ -45,16 +46,39 @@ function createPineappleHouse(scene) {
     top.position.set(0, 5, -10); // Place on top of the pineapple
     scene.add(top);
 
-    // Leaves (Fanned on Top)
-    const leafGeometry = new THREE.ConeGeometry(0.6, 2, 16);
-    const leafMaterial = new THREE.MeshStandardMaterial({ color: 0x055405 }); // Green
+    // Leaves
+    // Leaves
+    const leafGeometry = new THREE.ConeGeometry(0.6, 2, 16); // Leaf shape
+    const leafMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22 }); // Dark green
+    const pineappleHeight = 5; // Height of the pineapple cylinder
+    const roundTopHeight = 1; // Approximate height of the half-sphere
+    const leafHeight = pineappleHeight + roundTopHeight + 0.2; // Leaves start just above the pineapple top
+    const radius = 1.25; // Slightly larger radius for better spread
+
+    // Outer Leaves
     for (let i = 0; i < 12; i++) {
         const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
-        const angle = (i / 12) * Math.PI * 2; // Spread leaves evenly
-        leaf.position.set(Math.sin(angle) * 0.7, 6, Math.cos(angle) * 0.7); // Position in a circle
-        leaf.rotation.set(-Math.PI / 4, angle, 0); // Slightly tilt outward
+        const angle = (i / 12) * Math.PI * 2; // Spread leaves evenly around
+        leaf.position.set(
+            Math.sin(angle) * radius, // Spread around the x-axis
+            leafHeight,               // Correct height for leaves
+            Math.cos(angle) * radius - 0.5 // Move leaves slightly backward on the z-axis
+        );
+        //leaf.rotation.set(-Math.PI / 4, angle, 0); // Slightly tilt outward
+        leaf.translateZ(-9); // Translate leaves backward by 0.5 units
+        leaf.translateY(0.5);
+        leaf.translateX(0);
         scene.add(leaf);
     }
+
+    // Central Leaves (Straight-Up Leaves)
+    for (let i = 0; i < 4; i++) {
+        const centralLeaf = new THREE.Mesh(leafGeometry, leafMaterial);
+        centralLeaf.position.set(0, leafHeight + 0.5, -10.5); // Adjusted z-axis to move backward
+        centralLeaf.rotation.set(-Math.PI / 6, (i / 4) * Math.PI * 2, 0); // Slight outward tilt
+        scene.add(centralLeaf);
+    }
+
 
     // Door
     const doorGeometry = new THREE.BoxGeometry(1, 2, 0.1);
