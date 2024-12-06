@@ -20,6 +20,14 @@ export function bikiniScene(scene) {
     pineapple.position.set(0, 2.5, -10);
     scene.add(pineapple);
 
+    // Pineapple Leaves
+    const leavesGeometry = new THREE.CylinderGeometry(0.1, 2, 3, 16); // Cone shape for leaves
+    const leavesMaterial = new THREE.MeshStandardMaterial({ color: 0x055405 }); // Green color
+    const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+    leaves.position.set(0, 6, -10); // Position on top of the pineapple
+    scene.add(leaves);
+
+
     // Add pineapple's door
     const doorGeometry = new THREE.BoxGeometry(0.8, 1.5, 0.1);
     const doorMaterial = new THREE.MeshStandardMaterial({ color: 0x654321 }); // Brown
