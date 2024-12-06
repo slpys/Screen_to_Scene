@@ -5,11 +5,13 @@ import { regularScene } from './scenes/regularScene.js';
 import { gumballScene } from './scenes/gumballScene.js';
 
 let scene, camera, renderer, currentAudio;
+let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+let velocity = new THREE.Vector3();
+let direction = new THREE.Vector3();
 let audioVolume = 0.5; // Default volume
 let showFPS = false; // Default FPS display setting
 let stats; // FPS Stats object
 
-// Initialize Three.js
 function init() {
     // Renderer setup
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -17,12 +19,7 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     // Camera setup
-    camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 1, 5);
 
     // Scene setup
@@ -39,37 +36,57 @@ function init() {
     // Load the initial scene
     courageScene(scene);
 
-    // Setup sidebar and settings
+    // Setup sidebar buttons
     setupSidebarButtons();
+
+    // Setup settings modal
     setupSettings();
 
-    // Start animation loop
+    // Keyboard movement controls
+    setupMovementControls();
+
+    // Start the animation loop
     animate();
 }
 
-// Switch scene function
-function switchScene(newSceneFunction) {
-    // Clear the current scene
-    while (scene.children.length > 0) {
-        scene.remove(scene.children[0]);
-    }
+function setupMovementControls() {
+    document.addEventListener('keydown', (event) => {
+        switch (event.code) {
+            case 'KeyW': moveForward = true; break;
+            case 'KeyS': moveBackward = true; break;
+            case 'KeyA': moveLeft = true; break;
+            case 'KeyD': moveRight = true; break;
+        }
+    });
 
-    // Re-add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(5, 10, 7.5);
-    scene.add(directionalLight);
-
-    // Stop current audio if any
-    if (currentAudio) currentAudio.stop();
-
-    // Load the new scene
-    newSceneFunction(scene);
+    document.addEventListener('keyup', (event) => {
+        switch (event.code) {
+            case 'KeyW': moveForward = false; break;
+            case 'KeyS': moveBackward = false; break;
+            case 'KeyA': moveLeft = false; break;
+            case 'KeyD': moveRight = false; break;
+        }
+    });
 }
 
-// Setup sidebar button click listeners
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Handle movement
+    const delta = 0.1; // Speed multiplier
+    direction.z = Number(moveForward) - Number(moveBackward);
+    direction.x = Number(moveRight) - Number(moveLeft);
+    direction.normalize(); // Normalize to prevent faster diagonal movement
+
+    velocity.z = direction.z * delta;
+    velocity.x = direction.x * delta;
+
+    camera.position.x += velocity.x;
+    camera.position.z += velocity.z;
+
+    renderer.render(scene, camera);
+}
+
 function setupSidebarButtons() {
     const buttons = document.querySelectorAll('.scene-button');
 
@@ -96,6 +113,27 @@ function setupSidebarButtons() {
     });
 }
 
+function switchScene(newSceneFunction) {
+    // Clear the current scene
+    while (scene.children.length > 0) {
+        scene.remove(scene.children[0]);
+    }
+
+    // Re-add lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(5, 10, 7.5);
+    scene.add(directionalLight);
+
+    // Stop current audio if any
+    if (currentAudio) currentAudio.stop();
+
+    // Load the new scene
+    newSceneFunction(scene);
+}
+
 function setupSettings() {
     const settingsButton = document.getElementById('settings-button');
     const settingsModal = document.getElementById('settings-modal');
@@ -103,51 +141,29 @@ function setupSettings() {
     const volumeSlider = document.getElementById('music-volume');
     const fpsToggle = document.getElementById('fps-toggle');
 
-    // Debugging logs to confirm element selection
-    console.log('Settings button:', settingsButton);
-    console.log('Settings modal:', settingsModal);
-    console.log('Close settings button:', closeSettingsButton);
-    
-    // Ensure the modal starts hidden
-    if (!settingsModal.classList.contains('hidden')) {
-        settingsModal.classList.add('hidden');
-    }
-
     // Open settings
     settingsButton.addEventListener('click', () => {
-        console.log('Settings button clicked');
-        if (settingsModal.classList.contains('hidden')) {
-            settingsModal.classList.remove('hidden'); // Show the modal
-            console.log('Settings modal opened');
-        }
+        settingsModal.classList.remove('hidden');
     });
 
     // Close settings
     closeSettingsButton.addEventListener('click', () => {
-        console.log('Close button clicked');
-        if (!settingsModal.classList.contains('hidden')) {
-            settingsModal.classList.add('hidden'); // Hide the modal
-            console.log('Settings modal closed');
-        }
+        settingsModal.classList.add('hidden');
     });
 
     // Adjust music volume
     volumeSlider.addEventListener('input', (event) => {
         audioVolume = parseFloat(event.target.value);
-        console.log('Music Volume:', audioVolume);
         if (currentAudio) currentAudio.setVolume(audioVolume);
     });
 
-    // Toggle FPS Counter
+    // Toggle FPS Counter (if applicable)
     fpsToggle.addEventListener('change', (event) => {
         showFPS = event.target.checked;
         toggleFPSCounter(showFPS);
     });
 }
 
-
-
-// Toggle FPS Counter
 function toggleFPSCounter(enable) {
     if (enable) {
         if (!stats) {
@@ -161,14 +177,6 @@ function toggleFPSCounter(enable) {
         document.body.removeChild(stats.dom);
         stats = null;
     }
-}
-
-// Animation Loop with FPS Tracking
-function animate() {
-    if (stats) stats.begin(); // Start FPS tracking
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-    if (stats) stats.end(); // End FPS tracking
 }
 
 // Handle window resizing
