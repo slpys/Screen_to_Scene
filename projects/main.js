@@ -1,8 +1,10 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.module.js';
+
 import { courageScene } from './scenes/courageScene.js';
 import { bikiniScene } from './scenes/bikiniScene.js';
 import { regularScene } from './scenes/regularScene.js';
 import { gumballScene } from './scenes/gumballScene.js';
+
 
 let scene, camera, renderer, currentAudio;
 let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
@@ -13,19 +15,15 @@ let showFPS = false; // Default FPS display setting
 let stats; // FPS Stats object
 
 function init() {
-    // Renderer setup
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Camera setup
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 1, 5);
 
-    // Scene setup
     scene = new THREE.Scene();
 
-    // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
@@ -33,21 +31,17 @@ function init() {
     directionalLight.position.set(5, 10, 7.5);
     scene.add(directionalLight);
 
-    // Load the initial scene
+    // Setup sidebar toggle functionality
+    setupSidebarToggle();
+
+    // Load initial scene and start animation loop
     courageScene(scene);
 
-    // Setup sidebar buttons
-    setupSidebarButtons();
-
-    // Setup settings modal
-    setupSettings();
-
-    // Keyboard movement controls
     setupMovementControls();
 
-    // Start the animation loop
     animate();
 }
+
 
 function setupMovementControls() {
     document.addEventListener('keydown', (event) => {
@@ -111,6 +105,55 @@ function setupSidebarButtons() {
             }
         });
     });
+}
+
+function setupSidebarToggle() {
+    const sidebar = document.getElementById('sidebar');
+    const menuButton = document.getElementById('menu-button');
+    const sceneButtons = document.querySelectorAll('.scene-button');
+
+    // Function to attach event listeners to scene buttons
+    function attachSceneButtonListeners() {
+        sceneButtons.forEach((button) => {
+            button.removeEventListener('click', handleSceneClick); // Avoid duplicate listeners
+            button.addEventListener('click', handleSceneClick);
+        });
+    }
+
+    // Handle scene button click: switch scene and hide sidebar
+    function handleSceneClick(event) {
+        const sceneName = event.target.getAttribute('data-scene');
+        switch (sceneName) {
+            case 'courage':
+                switchScene(courageScene);
+                break;
+            case 'bikini':
+                switchScene(bikiniScene);
+                break;
+            case 'regular':
+                switchScene(regularScene);
+                break;
+            case 'gumball':
+                switchScene(gumballScene);
+                break;
+            default:
+                console.error('Scene not found:', sceneName);
+        }
+
+        // Hide sidebar and show menu button
+        sidebar.classList.add('hidden');
+        menuButton.classList.remove('hidden');
+    }
+
+    // Show sidebar and hide menu button
+    menuButton.addEventListener('click', () => {
+        sidebar.classList.remove('hidden');
+        menuButton.classList.add('hidden');
+        attachSceneButtonListeners(); // Re-attach listeners when sidebar is reopened
+    });
+
+    // Initial attachment of scene button listeners
+    attachSceneButtonListeners();
 }
 
 function switchScene(newSceneFunction) {
