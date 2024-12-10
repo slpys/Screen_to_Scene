@@ -27,6 +27,9 @@ export function bikiniScene(scene) {
 
     // Paths to houses
     createPaths(scene);
+
+    // Add collision detection and return the function
+    return addCollisionDetection(pineapple, camera);
 }
 
 // Add collision detection
@@ -104,6 +107,8 @@ function createPineappleHouse(scene) {
     const door = new THREE.Mesh(doorGeometry, doorMaterial);
     door.position.set(0, 1, -7.95);
     scene.add(door);
+
+    return pineapple;
 }
 
 
