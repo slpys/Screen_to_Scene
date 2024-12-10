@@ -3,7 +3,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.m
 export function bikiniScene(scene) {
     // Blue Background (Underwater Effect)
 
-    loader.load('./flowersky.jpg', function(texture) {
+    loader.load('../images/flowersky.jpg', function(texture) {
         scene.background = texture; // Set the image as the background
     });
 
