@@ -2,7 +2,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.m
 
 export function bikiniScene(scene) {
     // Blue Background (Underwater Effect)
-    scene.background = new THREE.Color(0x351C75); // Light blue
+    scene.background = new THREE.Color(0xFF0000); // Light blue
 
     // Ground (sandy color)
     const groundGeometry = new THREE.PlaneGeometry(100, 100);
@@ -34,16 +34,20 @@ export function bikiniScene(scene) {
 
 // Add collision detection
 function addCollisionDetection(pineapple, camera) {
-    const pineappleBox = new THREE.Box3().setFromObject(pineapple); // Create bounding box
+    const pineappleBox = new THREE.Box3(); // Empty Box3 to be updated each frame
 
-    // Update the bounding box during each frame
     function checkCollision() {
+        // Update the bounding box to match the position of the pineapple
+        pineappleBox.setFromObject(pineapple); 
+        
+        // Get the camera's current position
         const cameraPosition = new THREE.Vector3();
         camera.getWorldPosition(cameraPosition);
 
+        // Check if the camera is inside the bounding box
         if (pineappleBox.containsPoint(cameraPosition)) {
-            // Redirect to another website
-            window.location.href = 'https://www.nick.com/shows/spongebob-squarepants';
+            console.log('Collision detected with SpongeBob\'s house!'); // Debug message
+            window.location.href = 'https://www.nick.com/shows/spongebob-squarepants'; // Redirect to the URL
         }
     }
 
