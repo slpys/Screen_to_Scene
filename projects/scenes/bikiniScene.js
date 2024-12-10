@@ -2,7 +2,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.m
 
 export function bikiniScene(scene) {
     // Blue Background (Underwater Effect)
-    scene.background = new THREE.Color(0x87ceeb); // Light blue
+    scene.background = new THREE.Color(0x351C75); // Light blue
 
     // Ground (sandy color)
     const groundGeometry = new THREE.PlaneGeometry(100, 100);
