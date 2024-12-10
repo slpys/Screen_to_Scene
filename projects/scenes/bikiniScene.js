@@ -2,8 +2,12 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.m
 
 export function bikiniScene(scene) {
     // Blue Background (Underwater Effect)
-    scene.background = new THREE.Color(0xFF0000); // Light blue
 
+    loader.load('./flowersky.jpg', function(texture) {
+        scene.background = texture; // Set the image as the background
+    });
+
+    
     // Ground (sandy color)
     const groundGeometry = new THREE.PlaneGeometry(100, 100);
     const groundMaterial = new THREE.MeshStandardMaterial({ color: 0xffe4b5 }); // Sandy color
