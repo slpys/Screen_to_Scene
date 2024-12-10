@@ -14,6 +14,9 @@ let audioVolume = 0.5; // Default volume
 let showFPS = false; // Default FPS display setting
 let stats; // FPS Stats object
 let mouseDown = false;
+let checkCollision;
+
+
 
 function init() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -109,6 +112,11 @@ function animate() {
 
     camera.position.add(velocity); // Update camera position
 
+    // Check for collisions
+    if (typeof checkCollision === 'function') {
+        checkCollision(); // Call the collision detection function
+    }
+
     renderer.render(scene, camera);
 }
 
@@ -181,7 +189,8 @@ function switchScene(newSceneFunction) {
     if (currentAudio) currentAudio.stop();
 
     // Load the new scene
-    newSceneFunction(scene);
+    // Get the collision checking function from the scene (if available)
+    checkCollision = newSceneFunction(scene, camera);
 }
 
 function setupSettings() {
