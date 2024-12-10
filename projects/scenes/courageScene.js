@@ -1,7 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.module.js';
 
 export function courageScene(scene) {
-  scene.background = new THREE.Color(0x87ceeb); // Spooky purple background
+  scene.background = new THREE.Color(0x351C75); // Spooky purple background
 
   // Desert plane
   const desertGeometry = new THREE.PlaneGeometry(100, 100);
