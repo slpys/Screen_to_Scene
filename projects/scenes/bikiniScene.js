@@ -29,6 +29,24 @@ export function bikiniScene(scene) {
     createPaths(scene);
 }
 
+// Add collision detection
+function addCollisionDetection(pineapple, camera) {
+    const pineappleBox = new THREE.Box3().setFromObject(pineapple); // Create bounding box
+
+    // Update the bounding box during each frame
+    function checkCollision() {
+        const cameraPosition = new THREE.Vector3();
+        camera.getWorldPosition(cameraPosition);
+
+        if (pineappleBox.containsPoint(cameraPosition)) {
+            // Redirect to another website
+            window.location.href = 'https://www.nick.com/shows/spongebob-squarepants';
+        }
+    }
+
+    return checkCollision; // Return the collision checking function
+}
+
 
 // Helper Function: Pineapple House
 function createPineappleHouse(scene) {
